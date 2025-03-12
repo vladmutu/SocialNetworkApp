@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: black"
+            xmlns="http://javafx.com/javafx/11.0.14-internal"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.socialnetwork.Controllers.MainWindow"
+            stylesheets="@../stylesheets/master.css">
+   <children>
+
+      <TableView fx:id="tableViewFriendRequests" editable="true" layoutX="50" layoutY="50" prefHeight="200.0" prefWidth="400.0">
+        <columns>
+            <TableColumn fx:id="tableColumnFirstName" prefWidth="100.0" text="First Name" />
+            <TableColumn fx:id="tableColumnLastName" prefWidth="100.0" text="Last Name" />
+            <TableColumn fx:id="tableColumnEmail" prefWidth="100.0" text="Email" />
+            <TableColumn fx:id="tableColumnSendDate" prefWidth="100.0" text="Send Date" />
+        </columns>
+      </TableView>
+
+       <Label layoutX="50.0" layoutY="20.0" text="Friend Requests" textFill="white">
+           <font>
+               <Font size="16.0" />
+           </font>
+       </Label>
+
+       <Label layoutX="50.0" layoutY="270.0" text="Friends" textFill="white">
+           <font>
+               <Font size="16.0" />
+           </font>
+       </Label>
+
+       <TableView fx:id="tableViewFriends" editable="true" layoutX="50.0" layoutY="300.0" prefHeight="200.0" prefWidth="400.0">
+           <columns>
+               <TableColumn fx:id="tableColumnFirstNameFriend" prefWidth="100.0" text="Nume" />
+               <TableColumn fx:id="tableColumnLastNameFriend" prefWidth="100.0" text="Prenume" />
+               <TableColumn fx:id="tableColumnEmailFriend" prefWidth="100.0" text="Email" />
+               <TableColumn fx:id="tableColumnFriendsFrom" prefWidth="100.0" text="Friends from" />
+           </columns>
+       </TableView>
+       <Label fx:id="friendRequestStatus" layoutX="570" layoutY="20" style="-fx-background-color: yellow; -fx-font-size: 24px; -fx-background-radius: 8px; -fx-border-radius: 8px" text="New friend requests!" textFill="purple" />
+       <Button layoutX="590.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleAcceptFriendRequest" prefHeight="44.0" prefWidth="175.0" text="Accept Friend Request" />
+       <Button layoutX="590.0" layoutY="150.0" mnemonicParsing="false" onAction="#handleDeclineFriendRequest" prefHeight="44.0" prefWidth="175.0" text="Decline Friend Request" />
+       <Button layoutX="590.0" layoutY="250.0" mnemonicParsing="false" onAction="#handleDeleteFriend" prefHeight="44.0" prefWidth="175.0" text="Remove Friend" />
+       <Button layoutX="50.0" layoutY="550.0" mnemonicParsing="false" onAction="#handleBackToLogin" prefHeight="34.0" prefWidth="135.0" text="Back to profile" />
+       <Button layoutX="250.0" layoutY="550.0" mnemonicParsing="false" onAction="#handleAddFriend" prefHeight="34.0" prefWidth="112.0" text="Add Friend" />
+       <Button fx:id="prevButton" layoutX="100.0" layoutY="510.0" mnemonicParsing="false" onAction="#onPreviousPage" prefWidth="100" text="Previous" />
+       <Label fx:id="pageNumber" layoutX="220.0" layoutY="518.0" text="Page 0/0" textFill="white" />
+       <Button fx:id="nextButton" layoutX="300.0" layoutY="510.0" mnemonicParsing="false" onAction="#onNextPage" prefWidth="100" text="Next" />
+       <Button layoutX="640.0" layoutY="400.0" mnemonicParsing="false" onAction="#handleChat" prefHeight="44.0" prefWidth="51.0" style="-fx-background-color: black" textFill="WHITE">
+           <graphic>
+               <ImageView fitHeight="50.0" fitWidth="60.0" opacity="0.9" pickOnBounds="true" preserveRatio="true">
+                   <image>
+                       <Image url="@../Imgs/Message-PNG-Download-Image.png" />
+                   </image>
+               </ImageView>
+           </graphic>
+       </Button>
+   </children>
+</AnchorPane>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.socialnetwork.Controllers.AddFriendWindow"
+            prefHeight="300.0" prefWidth="550.0" style="-fx-background-color: black"
+            stylesheets="@../stylesheets/master.css">
+
+    <children>
+        <TableView fx:id="tableView" layoutX="35.0" layoutY="65.0" prefHeight="200.0" prefWidth="300.0">
+            <columns>
+                <TableColumn fx:id="tableColumnFirstName" prefWidth="100" text="First Name"/>
+                <TableColumn fx:id="tableColumnLastName" prefWidth="100" text="Last Name" />
+                <TableColumn fx:id="tableColumnEmail" prefWidth="100" text="Email" />
+            </columns>
+        </TableView>
+        <Label text="Send Friend Request" layoutY="15" layoutX="65" style="-fx-font-size: 22px" textFill="white"/>
+        <Button onAction="#handleSendFriendRequest" layoutX="350.0" layoutY="130.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" text="Send Friend Request" wrapText="true" textAlignment="CENTER"/>
+        <Button onAction="#backToFriends" layoutX="350.0" layoutY="200.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="200.0" text="Back To Friends" wrapText="true" textAlignment="CENTER"/>
+    </children>
+</AnchorPane>

@@ -1,0 +1,196 @@
+/* styles.css */
+.root {
+    -fx-background-color: black;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: rgba(189, 30, 173, 0.2);
+    -fx-border-width: 5;
+    -primary-color: #bd1ead;
+    -secondary-color: #00a6ff;
+    -fx-effect: dropshadow(gaussian, -primary-color, -20, 0.3, 0, 0);
+}
+
+
+#firstNameField, #emailField, #lastNameField, #passwordField, #passwordFieldVisible {
+    -fx-background-radius: 12;
+    -fx-alignment: center;
+    -fx-font-size: 14;
+    -fx-content-display: center;
+}
+
+#uploadProfilePicture{
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+    -fx-spacing: 20,20,20,20
+}
+
+.profilePictureHandlingBox {
+    -fx-padding: 10,20,10,20;
+    -fx-content-display: center;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+#uploadedImage {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+    -fx-spacing: 20,20,20,20;
+}
+
+.SignUpLabel {
+    -fx-font-size: 30;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+}
+
+.showPasswordCheckbox {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-translate-x: 50;
+}
+
+
+
+#rotateRightButton, #rotateLeftButton {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+}
+
+.registerButton, .backToLoginButton {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+}
+
+#rotationButtonsHBox {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-text-alignment: center;
+}
+
+
+Button {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+}
+
+.showPasswordCheckboxStart {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-translate-x: 40;
+}
+
+TextField {
+    -fx-background-radius: 12;
+    -fx-alignment: center;
+    -fx-font-size: 14;
+    -fx-content-display: center;
+}
+
+PasswordField {
+    -fx-background-radius: 12;
+    -fx-alignment: center;
+    -fx-font-size: 14;
+    -fx-content-display: center;
+}
+
+.passwordFieldStart {
+    -fx-translate-x: 80;
+}
+
+.table-view .column-header-background{
+    -fx-background-color: white;
+    -fx-background-radius: 12, 12, 0, 0;
+    -fx-border-radius: 12, 12, 0, 0;
+    -fx-font-weight: bold;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+}
+
+.list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-weight: bold;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+}
+
+.list-cell {
+    -fx-background-color: white;
+    -fx-border-radius: 12;
+    -fx-font-weight: bold;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+}
+
+
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-weight: bold;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, -primary-color, 10, 0.3, 0, 0);
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-radius: 12, 12, 0, 0;
+    -fx-font-weight: bold;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+
+}
+
+.table-view .column-header {
+    -fx-background-color: white;
+    -fx-background-radius: 12, 0, 12, 0;
+    -fx-border-radius: 12;
+    -fx-font-weight: bold;
+    -fx-font-family: Matt, Arial, sans-serif;
+    -fx-alignment: center;
+}

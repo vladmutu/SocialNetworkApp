@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Font?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.socialnetwork.Controllers.UpdateUser"
+            prefHeight="500.0" prefWidth="300.0" style="-fx-background-color: black"
+            stylesheets="@../stylesheets/master.css">
+    <children>
+        <TextField fx:id="textFieldFirstName" layoutX="70.0" layoutY="130.0" promptText="Enter new first name" focusTraversable="false"/>
+        <TextField fx:id="textFieldLastName" layoutX="70.0" layoutY="180.0" promptText="Enter new last name" focusTraversable="false"/>
+        <TextField fx:id="textFieldEmail" layoutX="70.0" layoutY="230.0" promptText="Enter new email" focusTraversable="false"/>
+        <TextField fx:id="textFieldPassword" layoutX="70.0" layoutY="280.0" promptText="Enter new password" focusTraversable="false"/>
+        <Button layoutX="100.0" layoutY="330.0" mnemonicParsing="false" onAction="#handleUpdate" prefHeight="40.0" prefWidth="100.0" text="Update" />
+        <Button layoutX="90" layoutY="390.0" onAction="#backToProfile" text="Back To Profile"/>
+        <Label layoutX="70.0" layoutY="50.0" text="Update Profile" textFill="white">
+            <font>
+                <Font size="22.0" />
+            </font>
+        </Label>
+    </children>
+</AnchorPane>

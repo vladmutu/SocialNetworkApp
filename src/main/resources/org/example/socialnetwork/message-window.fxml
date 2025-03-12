@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.socialnetwork.Controllers.MessageWindow"
+            prefHeight="550.0" prefWidth="600.0" style="-fx-background-color: black"
+            stylesheets="@../stylesheets/master.css">
+    <children>
+        <Label layoutX="10.0" layoutY="10.0" text="Friends" textFill="white" />
+        <Label layoutX="177.0" layoutY="10.0" text="Messages" textFill="white"/>
+        <Label layoutX="10.0" layoutY="290.0" text="Message" textFill="white"/>
+        <ListView fx:id="listFriends" layoutX="10.0" layoutY="30.0" prefHeight="250.0" prefWidth="157.0" />
+        <ListView fx:id="listMessages" layoutX="177.0" layoutY="30.0" prefHeight="380.0" prefWidth="413.0" />
+        <TextArea fx:id="message" layoutX="10.0" layoutY="310.0" prefHeight="100.0" prefWidth="157.0" />
+        <!--
+        make the button contain an image
+        -->
+        <Button layoutX="5.0" layoutY="420.0" mnemonicParsing="false" onAction="#handleSendMessage" prefHeight="44.0" prefWidth="175.0" textFill="WHITE" style="-fx-background-color: black">
+            <graphic>
+                <ImageView fitHeight="50.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" opacity="0.9">
+                    <image>
+                        <Image url="@../Imgs/Screenshot 2024-11-22 121130.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+        <Button fx:id="backToProfileView" text="Back To Profile" onAction="#backToProfile" layoutY="500" layoutX="35"/>
+    </children>
+</AnchorPane>

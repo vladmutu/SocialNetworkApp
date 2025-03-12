@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="10" stylesheets="@../stylesheets/master.css" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.socialnetwork.Controllers.SignUpWindow">
+    <!-- Label -->
+    <Label styleClass="SignUpLabel" text="Sign Up Now" textFill="WHITE" />
+
+    <!-- TextFields -->
+    <TextField fx:id="firstNameField" focusTraversable="false" maxWidth="150.0" promptText="Enter first name" />
+    <TextField fx:id="lastNameField" focusTraversable="false" maxWidth="150.0" promptText="Enter last name" />
+    <TextField fx:id="emailField" focusTraversable="false" maxWidth="150.0" promptText="Enter email" />
+    <HBox style="-fx-content-display: center; -fx-alignment: center" translateX="65" >
+        <StackPane>
+            <TextField fx:id="passwordFieldVisible" focusTraversable="false" maxWidth="150.0" promptText="Enter password" />
+            <PasswordField fx:id="passwordField" focusTraversable="false" maxWidth="150.0" promptText="Enter password" />
+        </StackPane>
+        <CheckBox fx:id="showPassword" onAction="#showHidePassword" styleClass="showPasswordCheckbox" text="Show Password" />
+    </HBox>
+
+    <HBox styleClass="profilePictureHandlingBox">
+        <VBox style="-fx-alignment: center; -fx-content-display: center">
+            <Button fx:id="uploadProfilePicture" onAction="#chooseFile" text="Upload Image">
+            <VBox.margin>
+               <Insets />
+            </VBox.margin></Button>
+            <ImageView fx:id="uploadedImage" translateY="8">
+            </ImageView>
+        </VBox>
+    </HBox>
+    <HBox fx:id="rotationButtonsHBox">
+    </HBox>
+    <!-- Buttons -->
+    <Button onAction="#registerAction" styleClass="registerButton" text="Register" />
+    <Button onAction="#backToLogin" styleClass="backToLoginButton" text="Back to Login" />
+</VBox>
