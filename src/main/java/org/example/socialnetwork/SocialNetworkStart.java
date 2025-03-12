@@ -22,9 +22,14 @@ public class SocialNetworkStart extends Application {
     private double yOffsetForChildWindow;
     @Override
     public void start(Stage primaryStage) throws IOException {
-        UserDBRepository userDBRepository = new UserDBRepository("jdbc:postgresql://localhost:5432/labfx", "postgres", "vldm19", new UserValidator());
-        FriendshipDBRepository friendshipDBRepository = new FriendshipDBRepository("jdbc:postgresql://localhost:5432/labfx", "postgres", "vldm19", new FriendshipValidator());
-        MessageDBRepository messageDBRepository = new MessageDBRepository(userDBRepository, "jdbc:postgresql://localhost:5432/labfx", "postgres", "vldm19");
+        //Modificati aceste variabile pentru a realiza conexiunea la baza de date
+        //Exemplu: url = "jdbc:postgresql://localhost:5432/socialnetwork"; username = "postgres"; password = "password";
+        String url = "";
+        String username = "";
+        String password = "";
+        UserDBRepository userDBRepository = new UserDBRepository(url, username, password, new UserValidator());
+        FriendshipDBRepository friendshipDBRepository = new FriendshipDBRepository(url, username, password, new FriendshipValidator());
+        MessageDBRepository messageDBRepository = new MessageDBRepository(userDBRepository, url, username, password);
         Service service = new Service(userDBRepository, friendshipDBRepository, messageDBRepository);
         FXMLLoader loader  = new FXMLLoader(SocialNetworkStart.class.getResource("start-window.fxml"));
         Parent root = loader.load();
