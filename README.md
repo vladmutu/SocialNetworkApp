@@ -1,31 +1,31 @@
-# 📱 Aplicație de Rețea Socială 🤝
+# 📱 Social Network Application 🤝
 
-## 📝Descriere
-Acest proiect este o simulare a unei aplicații de rețea socială, construită utilizând Java și JavaFX pentru interfața grafică. PostgreSQL este folosit ca sistem de gestionare a bazei de date. Aplicația permite utilizatorilor să își creeze un cont, să își gestioneze profilul, să se conecteze cu prietenii și să comunice cu aceștia.
+## 📝 Description
+This project is a simulation of a social network application, built using Java and JavaFX for the graphical interface. PostgreSQL is used as the database management system. The application allows users to create an account, manage their profile, connect with friends, and communicate with them.
 
-## 🔧Funcționalități
-- **Autentificare utilizator**: Înregistrare, conectare și deconectare în siguranță.
-- **Gestionarea profilului**: Actualizare sau ștergere a informațiilor din profil.
-- **Sistem de prietenie**:
-  - Trimitere și primire cereri de prietenie.
-  - Vizualizare și gestionare a listei de prieteni.
-- **Sistem de mesagerie**: Conversații cu prietenii.
-  **Notă** Aplicația nu are useri predefiniti. Ei trebuie creați prin Sign Up.
+## 🔧 Features
+- **User Authentication**: Secure registration, login, and logout.
+- **Profile Management**: Update or delete profile information.
+- **Friendship System**:
+  - Send and receive friend requests.
+  - View and manage the friends list.
+- **Messaging System**: Conversations with friends.
+  **Note**: The application does not have predefined users. They must be created through Sign Up.
 
-## 🛠️Tehnologii utilizate
-- **Java**: Limbajul principal de programare.
-- **JavaFX**: Pentru crearea interfeței grafice.
-- **PostgreSQL**: Sistem de gestionare a bazei de date, instalat local.
-- **Gradle**: Utilizat pentru configurarea proiectului și gestionarea dependențelor.
+## 🛠️ Technologies Used
+- **Java**: The main programming language.
+- **JavaFX**: Used for creating the graphical interface.
+- **PostgreSQL**: Database management system, installed locally.
+- **Gradle**: Used for project configuration and dependency management.
 
-## 📥Instalare
-1. Asigurați-vă că aveți instalate **Java JDK** (versiunea minimă 11), **JavaFX**, **PostgreSQL** și **Gradle** pe sistemul dvs.
-2. Configurați baza de date PostgreSQL:
-   - Creați o nouă bază de date.
-   - Editați fișierul `SocialNetworkStart.java`. Modificați variabilele: `url`, `username`, `password`.
-   - Executați scriptul SQL furnizat pentru a inițializa schema.
+## 👅 Installation
+1. Ensure you have **Java JDK** (minimum version 11), **JavaFX**, **PostgreSQL**, and **Gradle** installed on your system.
+2. Configure the PostgreSQL database:
+   - Create a new database.
+   - Edit the `SocialNetworkStart.java` file. Modify the variables: `url`, `username`, `password`.
+   - Execute the provided SQL script to initialize the schema.
 
-### 📜 Script SQL pentru crearea tabelelor:
+### 📝 SQL Script for Creating Tables:
 ```sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -54,19 +54,8 @@ CREATE TABLE messages (
 );
 ```
 
-3. Construiți și rulați aplicația utilizând Gradle.
+3. Build and run the application using Gradle.
 
-## 🎮Utilizare
-- Lansați aplicația.
-- Înregistrați un nou cont sau autentificați-vă dacă aveți deja unul.
-- Have fun exploring! 🚀
-
-## 📜 Licență
-Acest proiect este licențiat sub Licența MIT. Consultați fișierul `LICENSE` pentru detalii.
-
-## 👤 Autor
-[Numele Tău]
-
-## 🤝 Contribuții
-Contribuțiile sunt binevenite! Puteți face fork la depozit și trimite cereri de pull.
-
+## 🎮 Usage
+- Launch the application.
+- Register a new account or log in if you already have one.
