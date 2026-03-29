@@ -4,29 +4,40 @@ import org.example.socialnetwork.Domain.FriendRequest;
 import org.example.socialnetwork.Domain.Friendship;
 import org.example.socialnetwork.Domain.Message;
 import org.example.socialnetwork.Domain.User;
-import org.example.socialnetwork.Repository.PagingRepository;
-import org.example.socialnetwork.Repository.Repository;
+import org.example.socialnetwork.Persistence.Entity.FriendshipEntity;
+import org.example.socialnetwork.Persistence.Entity.MessageEntity;
+import org.example.socialnetwork.Persistence.Entity.UserEntity;
+import org.example.socialnetwork.Persistence.Repository.FriendshipJpaRepository;
+import org.example.socialnetwork.Persistence.Repository.MessageJpaRepository;
+import org.example.socialnetwork.Persistence.Repository.UserJpaRepository;
 import org.example.socialnetwork.Utils.Events.ChangeEventType;
 import org.example.socialnetwork.Utils.Events.UserEntityChangeEvent;
 import org.example.socialnetwork.Utils.Observer.Observable;
 import org.example.socialnetwork.Utils.Observer.Observer;
 import org.example.socialnetwork.Utils.Pageable.Page;
 import org.example.socialnetwork.Utils.Pageable.Pageable;
-import org.example.socialnetwork.Validators.ServiceException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
+@org.springframework.stereotype.Service
 public class Service implements Observable<UserEntityChangeEvent> {
-    private final Repository<Long, User> userRepository;
-    private final PagingRepository<Long, Friendship> friendshipRepository;
+    private final UserJpaRepository userRepository;
+    private final FriendshipJpaRepository friendshipRepository;
+    private final MessageJpaRepository messageRepository;
     private final List<Observer<UserEntityChangeEvent>> observers = new ArrayList<>();
 
-    private final Repository<Long, Message> messageRepository;
-
-    public Service(Repository<Long, User> userRepository, PagingRepository<Long, Friendship> friendshipRepository, Repository<Long, Message> messageRepository) {
+    public Service(UserJpaRepository userRepository,
+                   FriendshipJpaRepository friendshipRepository,
+                   MessageJpaRepository messageRepository) {
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
         this.messageRepository = messageRepository;
@@ -48,10 +59,11 @@ public class Service implements Observable<UserEntityChangeEvent> {
     }
 
     public List<FriendRequest> getFriendRequests(Long id) {
-        return StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        return friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .filter(friendship -> friendship.getId2().equals(id) && friendship.isPending())
                 .map(friendship -> {
-                    User user = userRepository.findOne(friendship.getId1()).orElse(null);
+                    User user = findOneUser(friendship.getId1()).orElse(null);
                     assert user != null;
                     return new FriendRequest(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), friendship.getDate());
                 })
@@ -59,11 +71,12 @@ public class Service implements Observable<UserEntityChangeEvent> {
     }
 
     public List<FriendRequest> getUsersFriendsDTO(Long id) {
-        return StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        return friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .filter(prietenie -> prietenie.contains(id) && !prietenie.isPending())
                 .map(prietenie -> {
                     Long friendId = prietenie.getId1().equals(id) ? prietenie.getId2() : prietenie.getId1();
-                    User friend = userRepository.findOne(friendId).orElse(null);
+                    User friend = findOneUser(friendId).orElse(null);
                     if (friend != null) {
                         return new FriendRequest(prietenie.getId(), friend.getFirstName(), friend.getLastName(), friend.getEmail(), prietenie.getDate());
                     }
@@ -74,11 +87,26 @@ public class Service implements Observable<UserEntityChangeEvent> {
     }
 
     public Page<Friendship> getUsersFriendsDTOOnPage(Pageable pageable, Long id) {
-        return friendshipRepository.findAllOnPage(pageable, id);
+        org.springframework.data.domain.Page<FriendshipEntity> pageResult = friendshipRepository.findAcceptedForUser(
+                id,
+                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize())
+        );
+
+        List<Friendship> friendships = pageResult.getContent().stream().map(entity -> {
+            Friendship friendship = toDomainFriendship(entity);
+            if (friendship.getId2().equals(id)) {
+                friendship.setId1(entity.getUser2());
+                friendship.setId2(entity.getUser1());
+            }
+            return friendship;
+        }).toList();
+
+        return new Page<>(friendships, (int) pageResult.getTotalElements());
     }
 
     public List<User> getUsersFriends(Long id) {
-        return StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        return friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .filter(prietenie -> prietenie.contains(id) && !prietenie.isPending())
                 .map(prietenie -> {
                     Long friendId;
@@ -87,73 +115,64 @@ public class Service implements Observable<UserEntityChangeEvent> {
                     } else {
                         friendId = prietenie.getId1();
                     }
-                    return userRepository.findOne(friendId).orElse(null);
+                    return findOneUser(friendId).orElse(null);
                 })
                 .collect(Collectors.toList());
     }
 
     public User findOneUserByNameAndEmail(String firstName, String lastName, String email) {
-        return StreamSupport.stream(userRepository.findAll().spliterator(), false)
+        return userRepository.findAll().stream()
+                .map(this::toDomainUser)
                 .filter(user -> user.getFirstName().equals(firstName) && user.getLastName().equals(lastName) && user.getEmail().equals(email))
                 .findFirst()
                 .orElse(null);
     }
 
     public Iterable<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAll().stream().map(this::toDomainUser).toList();
     }
 
     public Optional<User> findOneUser(Long id) {
-        return userRepository.findOne(id);
+        return userRepository.findById(id).map(this::toDomainUser);
     }
 
-    public Long getNewUserId() {
-        return StreamSupport.stream(userRepository.findAll().spliterator(), false)
-                .map(User::getId)
-                .max(Long::compareTo)
-                .orElse(0L) + 1;
-    }
-
+    @Transactional
     public User addUser(User u) {
-        List<User> sameEmailUsers = StreamSupport.stream(userRepository.findAll().spliterator(), false)
-                .filter(user -> user.getEmail().equals(u.getEmail()))
-                .toList();
-        if(!sameEmailUsers.isEmpty()) {
-            throw new RuntimeException("Email already in use!");
+        if (userRepository.existsByEmail(u.getEmail())) {
+            throw new ServiceException("Email already in use!");
         }
-        else {
-            u.setId(getNewUserId());
-            if(userRepository.save(u).isEmpty()) {
-                UserEntityChangeEvent event = new UserEntityChangeEvent(ChangeEventType.ADD, u);
-                notifyObservers(event);
-            }
-            return u;
-        }
+        UserEntity saved = userRepository.save(toEntityUser(u));
+        u.setId(saved.getId());
+        UserEntityChangeEvent event = new UserEntityChangeEvent(ChangeEventType.ADD, u);
+        notifyObservers(event);
+        return u;
     }
 
+    @Transactional
     public User removeUser(Long id) {
-        List<Long> friendshipsToRemove = StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
-                .filter(friendship -> friendship.contains(id))
-                .map(Friendship::getId)
-                .toList();
-        friendshipsToRemove.forEach(friendshipRepository::delete);
-        Optional<User> user = userRepository.delete(id);
-        if(user.isEmpty()) {
-            UserEntityChangeEvent event = new UserEntityChangeEvent(ChangeEventType.DELETE, user.get());
-            notifyObservers(event);
+        Optional<UserEntity> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            return null;
         }
-        return user.orElse(null);
+
+        friendshipRepository.deleteAll(friendshipRepository.findAll().stream()
+                .filter(friendship -> Objects.equals(friendship.getUser1(), id) || Objects.equals(friendship.getUser2(), id))
+                .toList());
+
+        messageRepository.deleteAll(messageRepository.findAll().stream()
+                .filter(message -> Objects.equals(message.getSenderId(), id) || Objects.equals(message.getReceiverId(), id))
+                .toList());
+
+        userRepository.deleteById(id);
+        User deletedUser = toDomainUser(user.get());
+        UserEntityChangeEvent event = new UserEntityChangeEvent(ChangeEventType.DELETE, deletedUser);
+        notifyObservers(event);
+        return deletedUser;
     }
 
-    public Long getNewFriendshipId() {
-        return StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
-                .map(Friendship::getId)
-                .max(Long::compareTo)
-                .orElse(0L) + 1;
-    }
-
+    @Transactional
     public void sendFriendRequest(Long user1, Long user2) {
-        if (userRepository.findOne(user1).isEmpty() || userRepository.findOne(user2).isEmpty()) {
+        if (userRepository.findById(user1).isEmpty() || userRepository.findById(user2).isEmpty()) {
             throw new ServiceException("User does not exist");
         }
 
@@ -161,19 +180,19 @@ public class Service implements Observable<UserEntityChangeEvent> {
             throw new ServiceException("ID's cannot be the same");
         }
 
-        if (StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        if (friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .anyMatch(prietenie -> prietenie.contains(user1) && prietenie.contains(user2))) {
             throw new ServiceException("Friendship already exists!");
         }
 
-        Friendship prietenie = new Friendship(user1,user2, LocalDateTime.now());
-        prietenie.setId(getNewFriendshipId());
-        friendshipRepository.save(prietenie);
+        Friendship prietenie = new Friendship(user1, user2, LocalDateTime.now());
+        friendshipRepository.save(toEntityFriendship(prietenie));
         notifyObservers(null);
     }
 
     public void acceptFriendRequest(Long user1, Long user2) {
-        if (userRepository.findOne(user1).isEmpty() || userRepository.findOne(user2).isEmpty()) {
+        if (userRepository.findById(user1).isEmpty() || userRepository.findById(user2).isEmpty()) {
             throw new ServiceException("User does not exist");
         }
 
@@ -181,18 +200,19 @@ public class Service implements Observable<UserEntityChangeEvent> {
             throw new ServiceException("ID's cannot be the same");
         }
 
-        Friendship prietenie = StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        Friendship prietenie = friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .filter(p -> p.contains(user1) && p.contains(user2) && p.isPending())
                 .findFirst()
                 .orElseThrow(() -> new ServiceException("Friendship does not exist!"));
 
         prietenie.setPending(false);
-        friendshipRepository.update(prietenie);
+        friendshipRepository.save(toEntityFriendship(prietenie));
         notifyObservers(null);
     }
 
     public void declineFriendRequest(Long user1, Long user2) {
-        if (userRepository.findOne(user1).isEmpty() || userRepository.findOne(user2).isEmpty()) {
+        if (userRepository.findById(user1).isEmpty() || userRepository.findById(user2).isEmpty()) {
             throw new ServiceException("User does not exist");
         }
 
@@ -200,130 +220,149 @@ public class Service implements Observable<UserEntityChangeEvent> {
             throw new ServiceException("ID's cannot be the same");
         }
 
-        Friendship prietenie = StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        Friendship prietenie = friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .filter(p -> p.contains(user1) && p.contains(user2) && p.isPending())
                 .findFirst()
                 .orElseThrow(() -> new ServiceException("Friendship does not exist!"));
 
-        friendshipRepository.delete(prietenie.getId());
+        friendshipRepository.deleteById(prietenie.getId());
         notifyObservers(null);
     }
 
     public User updateUser(User u) {
-        Optional<User> user = userRepository.findOne(u.getId());
-        if(user.isEmpty()) {
+        Optional<UserEntity> user = userRepository.findById(u.getId());
+        if (user.isEmpty()) {
             throw new ServiceException("User does not exist!");
         }
-        else {
-            List<User> sameEmailUsers = StreamSupport.stream(userRepository.findAll().spliterator(), false)
-                    .filter(user1 -> user1.getEmail().equals(u.getEmail()))
-                    .toList();
-            if(sameEmailUsers.isEmpty()) {
-                userRepository.update(u);
-                UserEntityChangeEvent event = new UserEntityChangeEvent(ChangeEventType.UPDATE, u, user.get());
-                notifyObservers(event);
-                return user.get();
-            }
-            else {
-                throw new ServiceException("Email already in use!");
-            }
+
+        List<UserEntity> sameEmailUsers = userRepository.findAll().stream()
+                .filter(user1 -> user1.getEmail().equals(u.getEmail()) && !Objects.equals(user1.getId(), u.getId()))
+                .toList();
+        if (!sameEmailUsers.isEmpty()) {
+            throw new ServiceException("Email already in use!");
         }
+
+        userRepository.save(toEntityUser(u));
+        UserEntityChangeEvent event = new UserEntityChangeEvent(ChangeEventType.UPDATE, u, toDomainUser(user.get()));
+        notifyObservers(event);
+        return toDomainUser(user.get());
     }
 
     public void removeFriendship(Long user1, Long user2) {
-        Iterable<Friendship> test = friendshipRepository.findAll();
-        List<Friendship> prietenie = StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        List<Friendship> prietenie = friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .filter(p -> p.getId1().equals(user1) && p.getId2().equals(user2) || p.getId1().equals(user2) && p.getId2().equals(user1))
                 .toList();
-        if(prietenie.isEmpty()) {
+        if (prietenie.isEmpty()) {
             throw new ServiceException("Friendship does not exist!");
         }
-        prietenie.forEach(p -> friendshipRepository.delete(p.getId()));
+        prietenie.forEach(p -> friendshipRepository.deleteById(p.getId()));
     }
 
-    public void addFrienship(Friendship friendship) {
-        List<Friendship> friendships = StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
-                .filter(f -> f.contains(friendship.getId1()) && f.contains(friendship.getId2()))
-                .toList();
-        if(!friendships.isEmpty()) {
-           throw new ServiceException("Friendship already exists!");
+    public boolean addMessage(Long idFrom, Long idTo, String message) {
+        Optional<User> from = findOneUser(idFrom);
+        Optional<User> to = findOneUser(idTo);
+        if (from.isEmpty() || to.isEmpty()) {
+            throw new ServiceException("One or both users were not found");
         }
-        if(friendship.getId1().equals(friendship.getId2())) {
-            throw new ServiceException("ID's cannot be the same");
+        if (message == null || message.trim().isEmpty()) {
+            throw new ServiceException("Message cannot be empty");
         }
-        friendshipRepository.save(friendship);
-    }
 
-    public boolean addMessage(Long id_from, Long id_to, String message) {
-        try {
-            Optional<User> from = findOneUser(id_from);
-            Optional<User> to = findOneUser(id_to);
-
-            if (from.isPresent() && to.isPresent()) {
-                if (message == null || message.trim().isEmpty()) {
-                    throw new ServiceException("Mesajul nu poate fi gol");
-                }
-
-                Message msg = new Message(from.get(), Collections.singletonList(to.get()), message);
-                messageRepository.save(msg);
-
-                List<Message> messagesBetweenUsers = getMessages(id_to, id_from);
-                if (messagesBetweenUsers.size() > 1) {
-                    Message oldReplyMessage = messagesBetweenUsers.get(messagesBetweenUsers.size() - 2);
-                    Message newReplyMessage = messagesBetweenUsers.get(messagesBetweenUsers.size() - 1);
-                    oldReplyMessage.setReply(newReplyMessage);
-                    messageRepository.update(oldReplyMessage);
-                }
-                else if (messagesBetweenUsers.size() == 1) {
-                    Message newReplyMessage = messagesBetweenUsers.get(0);
-                    newReplyMessage.setReply(newReplyMessage);
-                    messageRepository.update(newReplyMessage);
-                }
-
-                return true;
-            } else {
-                throw new ServiceException("Unul sau ambii utilizatori nu au fost găsiți");
-            }
-        } catch (ServiceException se) {
-            System.out.println("Eroare utilizator: " + se.getMessage());
-        } catch (Exception ex) {
-            System.out.println("Eroare creare mesaj: " + ex.getMessage());
-        }
-        return false;
+        Message msg = new Message(from.get(), Collections.singletonList(to.get()), message);
+        MessageEntity savedMessage = messageRepository.save(toEntityMessage(msg));
+        msg.setId(savedMessage.getId());
+        return true;
     }
 
     public ArrayList<Message> getMessages(Long id1, Long id2) {
-        Collection<Message> messages = (Collection<Message>) messageRepository.findAll();
+        List<Message> messages = messageRepository.findAll().stream().map(this::toDomainMessage).toList();
         return messages.stream()
-                .filter(msg -> ((msg.getSender().getId().equals(id1)) && msg.getReceivers().get(0).getId().equals(id2)) ||
-                        (msg.getSender().getId().equals(id2) && msg.getReceivers().get(0).getId().equals(id1)))
+                .filter(msg -> ((msg.getSender().getId().equals(id1)) && msg.getReceivers().get(0).getId().equals(id2))
+                        || (msg.getSender().getId().equals(id2) && msg.getReceivers().get(0).getId().equals(id1)))
                 .sorted(Comparator.comparing(Message::getDate))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public Iterable<Friendship> getAllFriendships() {
-        return friendshipRepository.findAll();
+        return friendshipRepository.findAll().stream().map(this::toDomainFriendship).toList();
     }
 
     public boolean isFriendship(Long id, Long id1) {
-        return StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        return friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .anyMatch(friendship -> friendship.contains(id) && friendship.contains(id1) && !friendship.isPending());
     }
 
     public void removeFriendships(Long id) {
-        StreamSupport.stream(friendshipRepository.findAll().spliterator(), false)
+        friendshipRepository.findAll().stream()
+                .map(this::toDomainFriendship)
                 .filter(friendship -> friendship.contains(id))
                 .map(Friendship::getId)
-                .forEach(friendshipRepository::delete);
+                .forEach(friendshipRepository::deleteById);
     }
 
     public void removeMessages(Long id) {
-        Iterable<Message> messages = messageRepository.findAll();
-        for(Message message : messages) {
-            if(message.getSender().getId().equals(id) || message.getReceivers().get(0).getId().equals(id)) {
-                messageRepository.delete(message.getId());
+        List<Message> messages = messageRepository.findAll().stream().map(this::toDomainMessage).toList();
+        for (Message message : messages) {
+            if (message.getSender().getId().equals(id) || message.getReceivers().get(0).getId().equals(id)) {
+                messageRepository.deleteById(message.getId());
             }
         }
+    }
+
+    private User toDomainUser(UserEntity entity) {
+        User user = new User(entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPassword(), entity.getProfilePicture());
+        user.setId(entity.getId());
+        return user;
+    }
+
+    private UserEntity toEntityUser(User user) {
+        UserEntity entity = new UserEntity();
+        entity.setId(user.getId());
+        entity.setFirstName(user.getFirstName());
+        entity.setLastName(user.getLastName());
+        entity.setEmail(user.getEmail());
+        entity.setPassword(user.getPassword());
+        entity.setProfilePicture(user.getProfilePicture() == null ? new byte[0] : user.getProfilePicture());
+        return entity;
+    }
+
+    private Friendship toDomainFriendship(FriendshipEntity entity) {
+        Friendship friendship = new Friendship(entity.getUser1(), entity.getUser2(), entity.getFriendsSince());
+        friendship.setId(entity.getId());
+        friendship.setPending(entity.isPending());
+        return friendship;
+    }
+
+    private FriendshipEntity toEntityFriendship(Friendship friendship) {
+        FriendshipEntity entity = new FriendshipEntity();
+        entity.setId(friendship.getId());
+        entity.setUser1(friendship.getId1());
+        entity.setUser2(friendship.getId2());
+        entity.setFriendsSince(friendship.getDate());
+        entity.setPending(friendship.isPending());
+        return entity;
+    }
+
+    private Message toDomainMessage(MessageEntity entity) {
+        User sender = findOneUser(entity.getSenderId()).orElseThrow(() -> new ServiceException("Sender not found"));
+        User receiver = findOneUser(entity.getReceiverId()).orElseThrow(() -> new ServiceException("Receiver not found"));
+        Message message = new Message(sender, Collections.singletonList(receiver), entity.getMessage(), entity.getDate());
+        message.setId(entity.getId());
+        return message;
+    }
+
+    private MessageEntity toEntityMessage(Message message) {
+        MessageEntity entity = new MessageEntity();
+        entity.setId(message.getId());
+        entity.setSenderId(message.getSender().getId());
+        entity.setReceiverId(message.getReceivers().get(0).getId());
+        entity.setDate(message.getDate());
+        entity.setMessage(message.getText());
+        entity.setReplyId(message.getReply() == null ? null : message.getReply().getId());
+        return entity;
     }
 }
 

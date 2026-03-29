@@ -11,7 +11,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.socialnetwork.Domain.User;
 import org.example.socialnetwork.Service.Service;
-import org.example.socialnetwork.Validators.ServiceException;
+import org.example.socialnetwork.Service.ServiceException;
 import org.example.socialnetwork.Validators.ValidationException;
 
 import javax.crypto.SecretKeyFactory;

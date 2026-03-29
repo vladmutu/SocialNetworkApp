@@ -18,7 +18,7 @@ import org.example.socialnetwork.Utils.Events.UserEntityChangeEvent;
 import org.example.socialnetwork.Utils.Observer.Observer;
 import org.example.socialnetwork.Utils.Pageable.Page;
 import org.example.socialnetwork.Utils.Pageable.Pageable;
-import org.example.socialnetwork.Validators.ServiceException;
+import org.example.socialnetwork.Service.ServiceException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
