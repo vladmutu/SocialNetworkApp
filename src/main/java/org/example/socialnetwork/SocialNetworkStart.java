@@ -8,30 +8,28 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.example.socialnetwork.Controllers.StartWindow;
-import org.example.socialnetwork.Repository.FriendshipDBRepository;
-import org.example.socialnetwork.Repository.MessageDBRepository;
-import org.example.socialnetwork.Repository.UserDBRepository;
 import org.example.socialnetwork.Service.Service;
-import org.example.socialnetwork.Validators.FriendshipValidator;
-import org.example.socialnetwork.Validators.UserValidator;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
 
 public class SocialNetworkStart extends Application {
     private double xOffsetForChildWindow;
     private double yOffsetForChildWindow;
+    private ConfigurableApplicationContext context;
+
+    @Override
+    public void init() {
+        context = new SpringApplicationBuilder(SocialNetworkApplication.class)
+                .headless(false)
+                .run();
+    }
+
     @Override
     public void start(Stage primaryStage) throws IOException {
-        //Modificati aceste variabile pentru a realiza conexiunea la baza de date
-        //Exemplu: url = "jdbc:postgresql://localhost:5432/socialnetwork"; username = "postgres"; password = "password";
-        String url = "";
-        String username = "";
-        String password = "";
-        UserDBRepository userDBRepository = new UserDBRepository(url, username, password, new UserValidator());
-        FriendshipDBRepository friendshipDBRepository = new FriendshipDBRepository(url, username, password, new FriendshipValidator());
-        MessageDBRepository messageDBRepository = new MessageDBRepository(userDBRepository, url, username, password);
-        Service service = new Service(userDBRepository, friendshipDBRepository, messageDBRepository);
-        FXMLLoader loader  = new FXMLLoader(SocialNetworkStart.class.getResource("start-window.fxml"));
+        Service service = context.getBean(Service.class);
+        FXMLLoader loader = new FXMLLoader(SocialNetworkStart.class.getResource("/org/example/socialnetwork/start-window.fxml"));
         Parent root = loader.load();
         root.setOnMousePressed(event -> {
             xOffsetForChildWindow = event.getSceneX();
@@ -50,6 +48,13 @@ public class SocialNetworkStart extends Application {
         startWindow.setService(service);
         startStage.setScene(startScene);
         startStage.show();
+    }
+
+    @Override
+    public void stop() {
+        if (context != null) {
+            context.close();
+        }
     }
 
     public static void main(String[] args) {

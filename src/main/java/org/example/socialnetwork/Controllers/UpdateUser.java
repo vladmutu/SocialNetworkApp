@@ -5,7 +5,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.socialnetwork.Domain.User;
 import org.example.socialnetwork.Service.Service;
-import org.example.socialnetwork.Validators.ServiceException;
+import org.example.socialnetwork.Service.ServiceException;
 
 public class UpdateUser {
     public TextField textFieldFirstName;
